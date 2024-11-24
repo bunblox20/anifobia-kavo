@@ -1,0 +1,83 @@
+-- Configuración inicial para usar la interfaz de Kavo
+local Kavo = {}
+local tween = game:GetService("TweenService")
+local player = game.Players.LocalPlayer
+local savedPos = nil  -- Variable para almacenar la posición guardada
+local TPTime = 1  -- Tiempo de teletransporte por defecto
+
+-- Función para teletransportarse a una posición específica
+function Kavo:TeleportToPosition(targetPosition)
+    local character = player.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        character.HumanoidRootPart.CFrame = CFrame.new(targetPosition)
+        print("Teletransportado a: ", targetPosition)
+    else
+        print("Error: No se pudo teletransportar")
+    end
+end
+
+-- Configuración de la interfaz en Kavo para teletransporte
+function Kavo:SetupTeleportUI()
+    -- Crear pestaña principal para las opciones de teletransporte
+    local mainTab = self:CreateTab("Teletransporte", 6594776225)  -- Icono de pestaña opcional
+
+    -- Crear deslizador para ajustar el tiempo de teletransporte
+    mainTab:CreateSlider({
+        Name = "Tiempo de Teletransporte",
+        Range = {1, 10},
+        Increment = 1,
+        Suffix = "segundos",
+        CurrentValue = TPTime,
+        Callback = function(value)
+            TPTime = value
+            print("Tiempo de teletransporte ajustado a: ", TPTime)
+        end
+    })
+
+    -- Botón para teletransportarse a una posición fija (como en el script original de teleport)
+    mainTab:CreateButton({
+        Name = "Teletransportarse a Posición Fija",
+        Callback = function()
+            wait(TPTime)
+            self:TeleportToPosition(Vector3.new(39.29, 213.29, -2674.13))
+        end
+    })
+
+    -- Botón para guardar la posición actual del jugador
+    mainTab:CreateButton({
+        Name = "Guardar Posición Actual",
+        Callback = function()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                savedPos = player.Character.HumanoidRootPart.Position
+                print("Posición guardada:", savedPos)
+            else
+                print("Error al guardar la posición.")
+            end
+        end
+    })
+
+    -- Botón para teletransportarse a la posición guardada
+    mainTab:CreateButton({
+        Name = "Teletransportarse a Posición Guardada",
+        Callback = function()
+            if savedPos then
+                wait(TPTime)
+                self:TeleportToPosition(savedPos)
+            else
+                print("No hay ninguna posición guardada.")
+            end
+        end
+    })
+end
+
+-- Crear temas para la interfaz
+local themes = {
+    SchemeColor = Color3.fromRGB(74, 99, 135),
+    Background = Color3.fromRGB(36, 37, 43),
+    Header = Color3.fromRGB(28, 29, 34),
+    TextColor = Color3.fromRGB(255, 255, 255),
+    ElementColor = Color3.fromRGB(32, 32, 38)
+}
+
+-- Inicializar la interfaz de usuario
+Kavo:SetupTeleportUI()  -- Configura la pestaña de teletransporte
